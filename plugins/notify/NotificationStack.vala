@@ -18,97 +18,91 @@
 using Clutter;
 using Meta;
 
-namespace Gala.Plugins.Notify
-{
-	public class NotificationStack : Actor
-	{
-		// we need to keep a small offset to the top, because we clip the container to
-		// its allocations and the close button would be off for the first notification
-		const int TOP_OFFSET = 2;
-		const int ADDITIONAL_MARGIN = 12;
+namespace Gala.Plugins.Notify {
+    public class NotificationStack : Actor {
+        // we need to keep a small offset to the top, because we clip the container to
+        // its allocations and the close button would be off for the first notification
+        const int TOP_OFFSET = 2;
+        const int ADDITIONAL_MARGIN = 12;
 
-		public signal void animations_changed (bool running);
+        public signal void animations_changed (bool running);
 
-		public Screen screen { get; construct; }
+#if HAS_MUTTER330
+        public Meta.Display display { get; construct; }
 
-		public NotificationStack (Screen screen)
-		{
-			Object (screen: screen);
-		}
-
-		construct
-		{
-#if HAS_MUTTER326
-			var scale = Meta.Backend.get_backend ().get_settings ().get_ui_scaling_factor ();
+        public NotificationStack (Meta.Display display) {
+            Object (display: display);
+        }
 #else
-			var scale = 1;
-#endif
-			width = (Notification.WIDTH + 2 * Notification.MARGIN + ADDITIONAL_MARGIN) * scale;
-			clip_to_allocation = true;
-		}
+        public Screen screen { get; construct; }
 
-		public void show_notification (Notification notification)
-		{
-			animations_changed (true);
-#if HAS_MUTTER326
-			var scale = Meta.Backend.get_backend ().get_settings ().get_ui_scaling_factor ();
-#else
-			var scale = 1;
+        public new float width {
+            get {
+                var scale = Utils.get_ui_scaling_factor ();
+                return (Notification.WIDTH + 2 * Notification.MARGIN + ADDITIONAL_MARGIN) * scale;
+             }
+        }
+
+        public NotificationStack (Screen screen) {
+            Object (screen: screen);
+        }
 #endif
 
-			// raise ourselves when we got something to show
-			get_parent ().set_child_above_sibling (this, null);
+        construct {
+            clip_to_allocation = true;
+        }
 
-			// we have a shoot-over on the start of the close animation, which gets clipped
-			// unless we make our container a bit wider and move the notifications over
-			notification.margin_left = ADDITIONAL_MARGIN * scale;
+        public void show_notification (Notification notification) {
+            animations_changed (true);
+            var scale = Utils.get_ui_scaling_factor ();
 
-			notification.notify["being-destroyed"].connect (() => {
-				animations_changed (true);
-			});
+            // raise ourselves when we got something to show
+            get_parent ().set_child_above_sibling (this, null);
 
-			notification.destroy.connect (() => {
-				animations_changed (false);
-				update_positions ();
-			});
+            // we have a shoot-over on the start of the close animation, which gets clipped
+            // unless we make our container a bit wider and move the notifications over
+            notification.margin_left = ADDITIONAL_MARGIN * scale;
 
-			notification.get_transition ("entry").completed.connect (() => {
-				animations_changed (false);
-			});
+            notification.notify["being-destroyed"].connect (() => {
+                animations_changed (true);
+            });
 
-			float height;
-			notification.get_preferred_height (Notification.WIDTH * scale, out height, null);
-			update_positions (height);
+            notification.destroy.connect (() => {
+                animations_changed (false);
+                update_positions ();
+            });
 
-			notification.y = TOP_OFFSET * scale;
-			insert_child_at_index (notification, 0);
-		}
+            notification.get_transition ("entry").completed.connect (() => {
+                animations_changed (false);
+            });
 
-		void update_positions (float add_y = 0.0f)
-		{
-#if HAS_MUTTER326
-			var scale = Meta.Backend.get_backend ().get_settings ().get_ui_scaling_factor ();
-#else
-			var scale = 1;
-#endif
-			var y = add_y + TOP_OFFSET * scale;
-			var i = get_n_children ();
-			var delay_step = i > 0 ? 150 / i : 0;
-			foreach (var child in get_children ()) {
-				if (((Notification) child).being_destroyed)
-					continue;
+            float height;
+            notification.get_preferred_height (Notification.WIDTH * scale, out height, null);
+            update_positions (height);
 
-				child.save_easing_state ();
-				child.set_easing_mode (AnimationMode.EASE_OUT_BACK);
-				child.set_easing_duration (200);
-				child.set_easing_delay ((i--) * delay_step);
+            notification.y = TOP_OFFSET * scale;
+            insert_child_at_index (notification, 0);
+        }
 
-				child.y = y;
-				child.restore_easing_state ();
+        void update_positions (float add_y = 0.0f) {
+            var scale = Utils.get_ui_scaling_factor ();
+            var y = add_y + TOP_OFFSET * scale;
+            var i = get_n_children ();
+            var delay_step = i > 0 ? 150 / i : 0;
+            foreach (var child in get_children ()) {
+                if (((Notification) child).being_destroyed)
+                    continue;
 
-				y += child.height;
-			}
-		}
-	}
+                child.save_easing_state ();
+                child.set_easing_mode (AnimationMode.EASE_OUT_BACK);
+                child.set_easing_duration (200);
+                child.set_easing_delay ((i--) * delay_step);
+
+                child.y = y;
+                child.restore_easing_state ();
+
+                y += child.height;
+            }
+        }
+    }
 }
-
