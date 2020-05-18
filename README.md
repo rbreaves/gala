@@ -24,6 +24,25 @@ You'll need the following dependencies:
 * libxml2-utils
 * valac (>= 0.28.0)
 
+Run this to install all dependencies
+
+```
+sudo apt install meson libbamf3-dev libplank-dev libgranite-dev libgnome-desktop-3-dev gnome-settings-daemon-dev libmutter-2-dev libcanberra-dev libcanberra-gtk3-dev
+```
+
+## Notes on enabling Blur
+
+May not work inside of a VM and you will need to copy the hex value of specific Window Id's to activate the blur.
+
+https://github.com/elementary/gala/issues/424
+
+May want to use the BlurWindow.vala gist and compile it.
+
+https://gist.github.com/rbreaves/444909167e6658096d1f02529f8eb991
+
+Unknown if I successfully merged this with the latest Gala release or not as of 5/18/2020
+
+
 Run `meson build` to configure the build environment. Change to the build directory and run `ninja` to build
 
     meson build --prefix=/usr
