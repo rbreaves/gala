@@ -308,6 +308,18 @@ namespace Meta {
 #else
 		public void flash_screen (Meta.Screen screen);
 #endif
+		[CCode (cheader_filename = "meta/compositor-mutter.h", cname = "meta_focus_stage_window")]
+		public static void focus_stage_window (Meta.Screen screen, uint32 timestamp);
+		[CCode (cheader_filename = "meta/compositor-mutter.h", cname = "meta_get_feedback_group_for_screen")]
+		public static unowned Clutter.Actor get_feedback_group_for_screen (Meta.Screen screen);
+		[CCode (cheader_filename = "meta/compositor-mutter.h", cname = "meta_get_stage_for_screen")]
+		public static unowned Clutter.Actor? get_stage_for_screen (Meta.Screen screen);
+		[CCode (cheader_filename = "meta/compositor-mutter.h", cname = "meta_get_top_window_group_for_screen")]
+		public static unowned Clutter.Actor? get_top_window_group_for_screen (Meta.Screen screen);
+		[CCode (cheader_filename = "meta/compositor-mutter.h", cname = "meta_get_window_actors")]
+		public static unowned GLib.List<weak Meta.WindowActor>? get_window_actors (Meta.Screen screen);
+		[CCode (cheader_filename = "meta/compositor-mutter.h", cname = "meta_get_window_group_for_screen")]
+		public static unowned Clutter.Actor? get_window_group_for_screen (Meta.Screen screen);
 		public void hide_tile_preview ();
 		public void hide_window (Meta.Window window, Meta.CompEffect effect);
 		public void manage ();
