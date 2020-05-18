@@ -21,6 +21,7 @@ basic_command = [
     '--pkg', 'gio-unix-2.0',
     '--pkg', 'gmodule-2.0',
     '--pkg', 'config',
+    '--pkg', 'cogl-fixes',
     vala_flags,
     '--vapidir=' + join_paths(meson.build_root(), 'lib'),
     '--vapidir=' + join_paths(meson.source_root(), 'vapi'),

@@ -54,6 +54,7 @@ add_project_arguments([
 		'--hide-internal',
 		'--enable-deprecated',
 		'--vapidir=' + vapi_dir,
+		'--pkg', 'cogl-fixes',
 	],
 	language: 'vala',
 )
